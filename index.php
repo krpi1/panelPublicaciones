@@ -60,6 +60,7 @@ $resultado = $query->get_result();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Publicaciones</title>
     <style>
+        /* Tus estilos CSS originales */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -217,6 +218,28 @@ $resultado = $query->get_result();
         socket.onclose = function() {
             console.log('Conexión WebSocket cerrada.');
         };
+
+        // Manejar likes y dislikes
+        document.querySelectorAll('.botones button').forEach(button => {
+            button.addEventListener('click', function() {
+                const publicacionId = this.dataset.publicacionId;
+                const tipo = this.dataset.tipo; // 'like' o 'dislike'
+
+                fetch('like_dislike.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ publicacionId, tipo })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.textContent = `${tipo === 'like' ? 'Like' : 'Dislike'} (${data.newCount})`;
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
