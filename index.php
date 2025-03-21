@@ -60,22 +60,23 @@ $resultado = $query->get_result();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Publicaciones</title>
     <style>
-        /* Tus estilos CSS originales */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Arial', sans-serif;
+            background-color: #e9ecef;
             margin: 0;
-            padding: 0;
+            padding: 20px;
         }
         .container {
-            width: 80%;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
             background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
         }
         h2 {
-            color: #333;
+            color: #495057;
+            margin-bottom: 20px;
         }
         form {
             margin-bottom: 20px;
@@ -83,51 +84,52 @@ $resultado = $query->get_result();
         textarea {
             width: 100%;
             padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid #ced4da;
             border-radius: 4px;
+            margin-bottom: 10px;
+            resize: vertical;
         }
         button {
             padding: 10px 20px;
-            background-color: #28a745;
+            background-color: #007bff;
             color: #fff;
             border: none;
             border-radius: 4px;
             cursor: pointer;
         }
         button:hover {
-            background-color: #218838;
+            background-color: #0056b3;
         }
         ul {
             list-style-type: none;
             padding: 0;
         }
         li {
-            background-color: #f9f9f9;
-            padding: 10px;
+            background-color: #f8f9fa;
+            padding: 15px;
             margin-bottom: 10px;
-            border: 1px solid #ddd;
             border-radius: 4px;
-        }
-        small {
-            color: #666;
-        }
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
+            border: 1px solid #dee2e6;
         }
         .publicacion {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
         }
         .publicacion img {
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            margin-right: 10px;
+            margin-right: 15px;
+        }
+        .publicacion-content {
+            flex-grow: 1;
+        }
+        .publicacion-content p {
+            margin: 0;
+            color: #212529;
+        }
+        .publicacion-content small {
+            color: #6c757d;
         }
         .botones {
             margin-top: 10px;
@@ -135,18 +137,25 @@ $resultado = $query->get_result();
         .botones button {
             margin-right: 5px;
             padding: 5px 10px;
-            background-color: #007bff;
+            background-color: #6c757d;
             color: #fff;
             border: none;
             border-radius: 4px;
             cursor: pointer;
         }
         .botones button:hover {
-            background-color: #0056b3;
+            background-color: #5a6268;
         }
         .botones button:disabled {
             background-color: #ccc;
             cursor: not-allowed;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -156,7 +165,7 @@ $resultado = $query->get_result();
 
         <!-- Formulario para crear una publicación -->
         <form method="POST" action="">
-            <textarea name="contenido" rows="4" cols="50" placeholder="Escribe una publicación..." required></textarea><br>
+            <textarea name="contenido" rows="4" placeholder="Escribe una publicación..." required></textarea><br>
             <button type="submit">Publicar</button>
         </form>
 
@@ -166,7 +175,7 @@ $resultado = $query->get_result();
                 <li>
                     <div class="publicacion">
                         <img src="<?php echo 'data:image/jpeg;base64,' . base64_encode($publicacion['imagen_usuario']); ?>" alt="Imagen de usuario">
-                        <div>
+                        <div class="publicacion-content">
                             <p><strong><?php echo htmlspecialchars($publicacion['nombre_usuario']); ?>:</strong></p>
                             <p><?php echo nl2br(htmlspecialchars($publicacion['contenido'])); ?></p>
                             <small>Publicado el: <?php echo $publicacion['fecha']; ?></small>
@@ -198,7 +207,7 @@ $resultado = $query->get_result();
                 nuevaPublicacion.innerHTML = `
                     <div class="publicacion">
                         <img src="default.jpg" alt="Imagen de usuario">
-                        <div>
+                        <div class="publicacion-content">
                             <p><strong>${data.usuario}:</strong></p>
                             <p>${data.contenido}</p>
                             <small>Publicado hace unos segundos</small>
