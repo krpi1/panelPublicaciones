@@ -144,6 +144,10 @@ $resultado = $query->get_result();
         .botones button:hover {
             background-color: #0056b3;
         }
+        .botones button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -167,8 +171,8 @@ $resultado = $query->get_result();
                             <p><?php echo nl2br(htmlspecialchars($publicacion['contenido'])); ?></p>
                             <small>Publicado el: <?php echo $publicacion['fecha']; ?></small>
                             <div class="botones">
-                                <button type="button" data-publicacionId="<?php echo $publicacion['id']; ?>" data-tipo="like">Like (<?php echo $publicacion['likes']; ?>)</button>
-                                <button type="button" data-publicacionId="<?php echo $publicacion['id']; ?>" data-tipo="dislike">Dislike (<?php echo $publicacion['dislikes']; ?>)</button>
+                                <button type="button" class="like-button" data-publicacionid="<?php echo $publicacion['id']; ?>" data-tipo="like">Like (<?php echo $publicacion['likes']; ?>)</button>
+                                <button type="button" class="dislike-button" data-publicacionid="<?php echo $publicacion['id']; ?>" data-tipo="dislike">Dislike (<?php echo $publicacion['dislikes']; ?>)</button>
                             </div>
                         </div>
                     </div>
@@ -179,7 +183,7 @@ $resultado = $query->get_result();
         <p><a href="login.php">Cerrar sesión</a></p>
     </div>
 
-    <!-- Script para manejar actualizaciones en tiempo real -->
+    <!-- Script para manejar actualizaciones en tiempo real y bloquear botones -->
     <script>
         // Conectar al servidor WebSocket
         const socket = new WebSocket('ws://localhost:8080');
@@ -199,8 +203,8 @@ $resultado = $query->get_result();
                             <p>${data.contenido}</p>
                             <small>Publicado hace unos segundos</small>
                             <div class="botones">
-                                <button type="button" data-publicacionId="0" data-tipo="like">Like (0)</button>
-                                <button type="button" data-publicacionId="0" data-tipo="dislike">Dislike (0)</button>
+                                <button type="button" class="like-button" data-publicacionid="0" data-tipo="like">Like (0)</button>
+                                <button type="button" class="dislike-button" data-publicacionid="0" data-tipo="dislike">Dislike (0)</button>
                             </div>
                         </div>
                     </div>
@@ -220,10 +224,12 @@ $resultado = $query->get_result();
         };
 
         // Manejar likes y dislikes
-        document.querySelectorAll('.botones button').forEach(button => {
-            button.addEventListener('click', function() {
-                const publicacionId = this.dataset.publicacionId;
-                const tipo = this.dataset.tipo; // 'like' o 'dislike'
+        document.addEventListener('click', function(e) {
+            if (e.target && (e.target.classList.contains('like-button') || e.target.classList.contains('dislike-button'))) {
+                const publicacionId = e.target.getAttribute('data-publicacionid');
+                const tipo = e.target.getAttribute('data-tipo'); // 'like' o 'dislike'
+                const likeButton = e.target.closest('.botones').querySelector('.like-button');
+                const dislikeButton = e.target.closest('.botones').querySelector('.dislike-button');
 
                 fetch('like_dislike.php', {
                     method: 'POST',
@@ -235,10 +241,20 @@ $resultado = $query->get_result();
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        this.textContent = `${tipo === 'like' ? 'Like' : 'Dislike'} (${data.newCount})`;
+                        e.target.textContent = `${tipo === 'like' ? 'Like' : 'Dislike'} (${data.newCount})`;
+
+                        // Desactivar la opción opuesta
+                        if (tipo === 'like') {
+                            dislikeButton.disabled = true;
+                            likeButton.disabled = false;
+                        } else {
+                            likeButton.disabled = true;
+                            dislikeButton.disabled = false;
+                        }
                     }
-                });
-            });
+                })
+                .catch(error => console.error('Error al procesar la solicitud:', error));
+            }
         });
     </script>
 </body>
