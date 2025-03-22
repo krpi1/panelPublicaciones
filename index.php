@@ -51,9 +51,9 @@ $resultado = $query->get_result();
     <style>
         body {
     font-family: 'Arial', sans-serif;
-    background-image: url('img/tres.png'); /* Ruta de la imagen */
-    background-size: cover; /* Hace que la imagen cubra todo el fondo */
-    background-position: center center; /* Centra la imagen */
+    background-image: url('img/tres.png'); 
+    background-size: cover; 
+    background-position: center center;
     background-attachment: fixed;
     margin: 0;
     padding: 20px;
