@@ -1,17 +1,13 @@
 <?php
 session_start();
 require 'conexion.php';
-require 'vendor/autoload.php'; // Cargar la librería WebSocket
-
-// Verificar si el usuario ha iniciado sesión
+require 'vendor/autoload.php'; 
 if (!isset($_SESSION['usuario'])) {
     header('Location: login.php');
     exit();
 }
 
 $usuario = $_SESSION['usuario'];
-
-// Obtener la imagen del usuario actual
 $queryUsuario = $conexion->prepare("SELECT imagen FROM usuarios WHERE usuario = ?");
 $queryUsuario->bind_param('s', $usuario);
 $queryUsuario->execute();
@@ -19,16 +15,11 @@ $resultadoUsuario = $queryUsuario->get_result();
 $usuarioData = $resultadoUsuario->fetch_assoc();
 $imagenUsuario = $usuarioData['imagen'] ? 'data:image/jpeg;base64,' . base64_encode($usuarioData['imagen']) : 'default.jpg';
 
-// Procesar la creación de publicaciones
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['contenido'])) {
     $contenido = $_POST['contenido'];
-    
-    // Insertar la nueva publicación en la base de datos
     $query = $conexion->prepare("INSERT INTO publicaciones (usuario, contenido) VALUES (?, ?)");
     $query->bind_param('ss', $usuario, $contenido);
     $query->execute();
-
-    // Enviar notificación al servidor WebSocket
     try {
         $client = new WebSocket\Client("ws://localhost:8080");
         $client->send(json_encode([
@@ -41,8 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['contenido'])) {
         echo "Error al enviar la notificación al servidor WebSocket: " . $e->getMessage();
     }
 }
-
-// Consultar todas las publicaciones con el nombre del usuario y su imagen
 $query = $conexion->prepare("
     SELECT publicaciones.*, usuarios.usuario as nombre_usuario, usuarios.imagen as imagen_usuario 
     FROM publicaciones 
@@ -61,11 +50,14 @@ $resultado = $query->get_result();
     <title>Panel de Publicaciones</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #e9ecef;
-            margin: 0;
-            padding: 20px;
-        }
+    font-family: 'Arial', sans-serif;
+    background-image: url('img/tres.png'); /* Ruta de la imagen */
+    background-size: cover; /* Hace que la imagen cubra todo el fondo */
+    background-position: center center; /* Centra la imagen */
+    background-attachment: fixed;
+    margin: 0;
+    padding: 20px;
+}
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -91,14 +83,14 @@ $resultado = $query->get_result();
         }
         button {
             padding: 10px 20px;
-            background-color: #007bff;
+            background-color:rgb(227, 184, 223);
             color: #fff;
             border: none;
             border-radius: 4px;
             cursor: pointer;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color:rgb(177, 145, 164);
         }
         ul {
             list-style-type: none;
@@ -162,8 +154,6 @@ $resultado = $query->get_result();
 <body>
     <div class="container">
         <h2>Bienvenido, <?php echo htmlspecialchars($usuario); ?>!</h2>
-
-        <!-- Formulario para crear una publicación -->
         <form method="POST" action="">
             <textarea name="contenido" rows="4" placeholder="Escribe una publicación..." required></textarea><br>
             <button type="submit">Publicar</button>
@@ -191,17 +181,13 @@ $resultado = $query->get_result();
 
         <p><a href="login.php">Cerrar sesión</a></p>
     </div>
-
-    <!-- Script para manejar actualizaciones en tiempo real y bloquear botones -->
     <script>
-        // Conectar al servidor WebSocket
         const socket = new WebSocket('ws://localhost:8080');
 
         socket.onmessage = function(event) {
             const data = JSON.parse(event.data);
 
             if (data.action === 'new_post') {
-                // Crear un nuevo elemento para la publicación
                 const publicacionesList = document.querySelector('ul');
                 const nuevaPublicacion = document.createElement('li');
                 nuevaPublicacion.innerHTML = `
@@ -218,25 +204,20 @@ $resultado = $query->get_result();
                         </div>
                     </div>
                 `;
-                publicacionesList.prepend(nuevaPublicacion); // Agregar la publicación al inicio de la lista
+                publicacionesList.prepend(nuevaPublicacion); 
             }
         };
 
-        // Manejar errores de conexión
         socket.onerror = function(error) {
             console.error('Error en la conexión WebSocket:', error);
         };
-
-        // Mostrar un mensaje cuando la conexión se cierre
         socket.onclose = function() {
             console.log('Conexión WebSocket cerrada.');
         };
-
-        // Manejar likes y dislikes
         document.addEventListener('click', function(e) {
             if (e.target && (e.target.classList.contains('like-button') || e.target.classList.contains('dislike-button'))) {
                 const publicacionId = e.target.getAttribute('data-publicacionid');
-                const tipo = e.target.getAttribute('data-tipo'); // 'like' o 'dislike'
+                const tipo = e.target.getAttribute('data-tipo'); 
                 const likeButton = e.target.closest('.botones').querySelector('.like-button');
                 const dislikeButton = e.target.closest('.botones').querySelector('.dislike-button');
 
@@ -252,7 +233,6 @@ $resultado = $query->get_result();
                     if (data.success) {
                         e.target.textContent = `${tipo === 'like' ? 'Like' : 'Dislike'} (${data.newCount})`;
 
-                        // Desactivar la opción opuesta
                         if (tipo === 'like') {
                             dislikeButton.disabled = true;
                             likeButton.disabled = false;

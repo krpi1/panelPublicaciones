@@ -12,3 +12,7 @@ CREATE TABLE publicaciones (
     contenido TEXT NOT NULL,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE usuario_publicacion {
+    id_usuario int not null,
+    q
+}

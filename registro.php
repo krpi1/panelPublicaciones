@@ -168,8 +168,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error): ?>
                 <div class="form-footer">
-                    <p><strong>Tu usuario:</strong> <?php echo $usuarioGenerado; ?></p>
-                    <p><strong>Tu contraseña:</strong> <?php echo $passwordGenerado; ?></p>
+                    <p><strong>Usuario:</strong> <?php echo $usuarioGenerado; ?></p>
+                    <p><strong>Contraseña:</strong> <?php echo $passwordGenerado; ?></p>
                     <p>¿Ya tienes una cuenta? <a href="login.php">Inicia sesión aquí</a></p>
                 </div>
             <?php endif; ?>
